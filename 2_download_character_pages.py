@@ -1,18 +1,36 @@
 import pandas as pd
 import os
 import requests
+import random
+import json
+import argparse
 from time import sleep
 from lib import utils
-import json
+
 from IPython.display import display, clear_output
 
-if os.path.exists('progress') == False:
-    os.makedirs('progress')
+# Commandline argument parser
+parser = argparse.ArgumentParser(description='Receive crawling options from commandline.')
+parser.add_argument('-s', '--start_point', type=int, help='Starting index of the list of characters to crawl')
+parser.add_argument('-e', '--end_point', type=int, help='Ending index of the list of characters to crawl')
 
+args = parser.parse_args()
+
+# Prepare craw list
 char_list = pd.read_csv('data/raw/character_list.csv')
 
 save_interval = 5
 start_point = 0
+end_point = -1
+
+if args.start_point is not None:
+    start_point = args.start_point
+
+if args.end_point is not None:
+    end_point = args.end_point
+
+if os.path.exists('progress') == False:
+    os.makedirs('progress')
 
 try:
     with open('progress/characters_progress.json', 'r') as obj:
@@ -26,7 +44,7 @@ except FileNotFoundError as error:
 except json.JSONDecodeError as error:
     print('No progress found. Start from beginning')
 
-crawl_list = char_list.url[start_point:-1]
+crawl_list = char_list.url[start_point:end_point]
 
 for counter, url in enumerate(crawl_list, start=1):
     
@@ -47,4 +65,5 @@ for counter, url in enumerate(crawl_list, start=1):
         with open('progress/characters_progress.json', 'w') as obj:
             json.dump(char_progress, obj)
     
-    sleep(2)
+    sleep(random.randint(2, 10))
+

@@ -3,6 +3,7 @@ import bs4
 import requests
 from urllib.parse import urljoin
 from time import sleep
+import os 
 from lib import utils
 
 # Get character URLs from all pages
@@ -47,5 +48,9 @@ while utils.next_page_exists(next_page_soup):
     
     sleep(2)
 
+if not os.path.exists('data/raw/'):
+    os.makedirs('data/raw')
+
 char_urls_df = pd.DataFrame(char_urls)
 char_urls_df.to_csv('data/raw/character_list.csv', index=False)
+
